@@ -18,11 +18,13 @@ from pathlib import Path
 # manipulacion de fechas
 from dateutil.parser import parse
 
-root_dir = Path(".").resolve().parent
+root_dir = Path(__file__).resolve().parent.parent
 
 # Funcion para leer cargar los archivos de filename
 def get_data(filename):
 
+
+    print(root_dir)
     data_dir = "raw"
     file_path = os.path.join(root_dir, "data", data_dir, filename)
     data = pd.read_csv(file_path, encoding='latin-1', sep=';')
