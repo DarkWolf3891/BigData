@@ -1,55 +1,56 @@
- # Pseudo codigo 
- # 1. leer archivo .csv
- # 2. extraer el resumen
- # 3. guardar el resumen de formato .csv
-
-from fileinput import filename
-import pandas as pd
+ # pseudo codigo
+# main()
+#    datos = get_data(filename)
+#    reporte = generate_report(datos)
+#    save_data(reporte)
 import os
+import pandas as pd
 from pathlib import Path
 
-def main(): 
+root_dir = Path(".").resolve()
 
-    #leer archivo
-    data = get_data(filename = "llamadas123_julio_2022.csv")
-    # extraer resumen
-    df_resumen = get_summary(data)
-    # guarde el resumen
-    save_data(df_resumen, filename = "llamadas123_julio_2022.csv")
+def get_data(filename):
+    
+    data_dir = 'raw'
+    file_path = os.path.join(root_dir, "data", data_dir, filename)
 
-def save_data(df, filename):
-    out_name = "resumen_" + filename
-    root_dir = Path(".").resolve()
-    out_path = os.path.join(root_dir, 'data', 'processed', out_name)
+    datos = pd.read_csv(file_path, encoding='latin-1', sep=';')
+    print('get_data')
+    print('La tabla contiene', datos.shape[0], 'filas', datos.shape[1], 'columnas')
+    return datos
 
-    df.to_csv(out_path)
-
-def get_summary(data):
+def generate_report(datos):
     # Crear un diccionario vacio
     dict_resumen = dict()
 
-    for col in data.columns:
-        valores_unicos = data[col].unique()
+    # loop para llenar el diccionario de columnas con valores unicos
+    for col in datos.columns:
+        valores_unicos = datos[col].unique()
         n_valores = len(valores_unicos)
-        # print(col, n_valores)
         dict_resumen[col] = n_valores
 
-    df_resumen = pd.DataFrame.from_dict(dict_resumen, orient= 'index')
-    df_resumen.rename({0: 'Count'}, axis = 1, inplace=True)
-    
-    return df_resumen
+    reporte = pd.DataFrame.from_dict(dict_resumen, orient='index')
+    reporte.rename({0: 'Count'}, axis=1, inplace=True)
 
-def get_data(filename):
-    data_dir = "raw"
-    root_dir = Path(".").resolve()
-    file_path=os.path.join(root_dir, "data", data_dir, filename)
+    print('generate_report')
+    print(reporte.head())
+    return reporte
 
-    data = pd.read_csv(file_path, encoding = 'latin-1', sep = ';')
-    return data
+def save_data(reporte, filename):
+    # Guardar la tabla:
 
-if __name__ == '__main__':
-    main() 
+    out_name = 'resumen_' + filename
+    out_path = os.path.join(root_dir, 'data', 'processed', out_name)
+    reporte.to_csv(out_path)
 
+def main():
+
+    filename = "llamadas123_julio_2022.csv"
+    datos = get_data(filename)
+    reporte = generate_report(datos)
+    save_data(reporte, filename)
+
+    print('DONE!!!')
 
 if __name__ == '__main__':
     main()
